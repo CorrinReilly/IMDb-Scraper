@@ -1,12 +1,37 @@
-# Define here the models for your scraped items
-#
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/items.html
-
+"""
+Define the models for scrapped items
+"""
 import scrapy
 
 
-class ImdbScraperItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
+class TitleItem(scrapy.Item):
+    """
+    Model for a title
+    """
+    genre_id = scrapy.Field()
+    name = scrapy.Field()
+    certificate = scrapy.Field()
+    runtime = scrapy.Field()
+    imdb_rating = scrapy.Field()
+    page_identifier = scrapy.Field()
+
+
+class CastItem(scrapy.Item):
+    """
+    Model for a Cast member
+    """
     pass
+
+
+class RatingsItem(scrapy.Item):
+    """
+    Model for ratings info
+    """
+    pass
+
+
+class GenreItem(scrapy.Item):
+    """
+    Model for genre types
+    """
+    name = scrapy.Field()

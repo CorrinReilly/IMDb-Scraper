@@ -41,7 +41,6 @@ class TitleSpider(scrapy.Spider):
         for genres in self.available_genres:
             if genres[1] == genre and genre in genre_names:
                 self.selected_genre = genres
-                print(self.selected_genre)
                 self.sort = sort
             else:
                 logger.error(f'Reason: Genre {genre} is not available to crawl.')
@@ -57,10 +56,18 @@ class TitleSpider(scrapy.Spider):
         for card in response.xpath('//div[@class="lister-item mode-advanced"]/div[@class="lister-item-content"]'):
             title = card.xpath('.//h3[@class="lister-item-header"]/a/text()').get()
             certificate = card.xpath('.//p/span[@class="certificate"]/text()').get()
-            runtime = card.xpath('.//p/span[@class="runtime"]/text()').get()
-            imdb_rating = card.xpath(
+            runtime_string = card.xpath('.//p/span[@class="runtime"]/text()').get()
+            if runtime_string is not None:
+                runtime = int(float(str(runtime_string).split(' ')[0]))
+            else:
+                runtime = None
+            imdb_rating_string = card.xpath(
                 './/div[@class="ratings-bar"]/div[@class="inline-block ratings-imdb-rating"]/@data-value'
             ).get()
+            if imdb_rating_string is not None:
+                imdb_rating = float(imdb_rating_string)
+            else:
+                imdb_rating = None
             title_link = card.xpath('.//h3[@class="lister-item-header"]/a/@href').get()
             page_identifier = title_link.split('/')[2]
             genre_id = self.selected_genre[0]

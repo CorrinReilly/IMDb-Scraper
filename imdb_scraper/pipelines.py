@@ -38,7 +38,7 @@ class TitlePipeline:
                     name TEXT NOT NULL,
                     certificate TEXT,
                     runtime INT,
-                    imdb_rating INT,
+                    imdb_rating FLOAT,
                     page_identifier TEXT NOT NULL,
                     CONSTRAINT FK_TitlesGenres FOREIGN KEY (genre_id)
                         REFERENCES genres(id)
@@ -54,13 +54,20 @@ class TitlePipeline:
         :return:
         """
         try:
-            if self.cursor.execute("""
-                SELECT COUNT(*) FROM `titles` WHERE name = %s
-            """, (
+            logger.info('Checking: %s' % (item['name']))
+            self.cursor.execute("""
+                                        SELECT COUNT(*) FROM `titles` WHERE `name` = %s
+                                    """, (
                 item['name'],
-            )) == 0:
+            ))
+            count = self.cursor.fetchone()[0]
+            logger.info(
+                count
+            )
+            if count < 1:
+                logger.info('Saving: %s' % (item['name']))
                 self.cursor.execute("""
-                    INSERT INTO `imdb_scraper`.`titles` (
+                    INSERT INTO `titles` (
                         `genre_id`, `name`, `certificate`, `runtime`, `imdb_rating`, `page_identifier`
                     )
                     VALUES (%s,%s,%s,%s,%s,%s)
@@ -73,6 +80,8 @@ class TitlePipeline:
                     item['page_identifier'],
                 ))
                 self.connection.commit()
+                logger.info('Saved')
+            logger.info('closed')
         except Error as error:
             logger.error("Error %s: %s" % (error.args[0], error.args[1]))
         return item

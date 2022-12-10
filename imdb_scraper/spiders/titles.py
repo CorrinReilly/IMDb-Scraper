@@ -32,19 +32,20 @@ class TitleSpider(scrapy.Spider):
             self.available_genres = db.get_genres()
         except Exception as exception:
             logger.error("Error %s: %s" % (exception.args[0], exception.args[1]))
-            CloseSpider()
+            raise CloseSpider('Spider Closed: Error at titles.py, line 35.')
 
         genre_names = []
         for genre_name in self.available_genres:
             genre_names.append(genre_name[1])
 
         for genres in self.available_genres:
-            if genres[1] == genre and genre in genre_names:
+            if genre not in genre_names:
+                logger.error(f'Reason: Genre {genre} is not available to crawl.')
+                raise CloseSpider("Spider Closed: Error at titles.py, line 44.")
+            elif genres[1] == genre:
                 self.selected_genre = genres
                 self.sort = sort
-            else:
-                logger.error(f'Reason: Genre {genre} is not available to crawl.')
-                CloseSpider()
+                break
 
         self.start_urls = [f'https://www.imdb.com/search/title/?genres={self.selected_genre[1]}&sort={self.sort}']
 
